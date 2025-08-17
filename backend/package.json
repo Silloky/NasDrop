@@ -1,0 +1,23 @@
+{
+  "name": "backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "src/index.ts",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc"
+  },
+  "keywords": [],
+  "author": "Silloky (Elias Kirkwood)",
+  "license": "ISC",
+  "packageManager": "pnpm@9.15.0+sha512.76e2379760a4328ec4415815bcd6628dee727af3779aaa4c914e3944156c4299921a89f976381ee107d41f12cfa4b66681ca9c718f0668fa0831ed4c6d8ba56c",
+  "devDependencies": {
+    "@types/node": "^24.3.0",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  },
+  "private": "true",
+  "dependencies": {
+    "dotenv": "^17.2.1"
+  }
+}
