@@ -18,6 +18,7 @@ function transformPath(path: string) {
 apiRouter.use((req: Request, res, next) => {
     if (req.path === '/auth') {
         next();
+        return
     }
     const token = req.headers.authorization?.split(" ")[1];
     if (token) {
@@ -29,7 +30,7 @@ apiRouter.use((req: Request, res, next) => {
             next();
         });
     } else {
-        next();
+        res.status(401).send("Unauthorized");
     }
 });
 
@@ -68,7 +69,7 @@ apiRouter.put('/', (req: Request, res) => {
 apiRouter.patch('/:id', (req: Request, res) => {
     const {winPath, ttl, auth}: Partial<Omit<ShareCreationData, 'user'>> = req.body;
     const share = shareList.getShare(req.params.id!);
-    if (share) {
+    if (share && share.creation.user === req.user) {
         share.path = (winPath ? transformPath(winPath) : undefined) ?? share.path;
         share.expiry = (ttl ? new Date(Date.now() + ttl * 1000) : undefined) ?? share.expiry;
         share.auth = auth ?? share.auth;
@@ -80,7 +81,7 @@ apiRouter.patch('/:id', (req: Request, res) => {
 
 apiRouter.delete('/:id', (req: Request, res) => {
     const share = shareList.getShare(req.params.id!);
-    if (share) {
+    if (share && share.creation.user === req.user) {
         shareList.removeShare(req.params.id!);
         res.status(204).send({ success: true });
     } else {

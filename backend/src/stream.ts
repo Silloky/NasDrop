@@ -42,6 +42,9 @@ export default function handleFileStreaming(share: Share, req: express.Request, 
         const stream = share.fileStream(start, end);
         stream.on('open', () => stream.pipe(res));
         stream.on('error', () => res.status(500).end());
+        stream.on('end', () => {
+            share.accessCount++;
+        });
         req.on('close', () => stream.destroy());
     } else {
         res.status(200);
@@ -52,6 +55,9 @@ export default function handleFileStreaming(share: Share, req: express.Request, 
         const stream = share.fileStream();
         stream.on('open', () => stream.pipe(res));
         stream.on('error', () => res.status(500).end());
+        stream.on('end', () => {
+            share.accessCount++;
+        });
         req.on('close', () => stream.destroy());
     }
 }

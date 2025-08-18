@@ -36,6 +36,7 @@ export class Share implements IShare {
     public creation: {user: string, timestamp: number} = {user: "", timestamp: Date.now()};
     public expiry: Date = new Date(0);
     public auth: {user: string, password: string} = {user: "", password: ""};
+    public accessCount: number = 0;
 
     constructor (obj?: ShareCreationData) {
         if (obj) {

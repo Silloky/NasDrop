@@ -16,7 +16,7 @@ export const config = {
 };
 
 const public_app = express();
-public_app.get('/s/:id', (req, res) => {
+public_app.get('/:id', (req, res) => {
     const share = shareList.getShare(req.params.id!);
     if (share) {
         if (share.auth.user && share.auth.password) {
@@ -38,12 +38,12 @@ public_app.listen(config.PUBLIC_PORT, () => {
 });
 
 const private_app = express();
+private_app.use(express.json());
 private_app.use('/api', apiRouter);
 private_app.listen(config.PRIVATE_PORT, () => {
     console.log(`Private server is running on port ${config.PRIVATE_PORT}`);
 });
 
-// Testing the ShareList class
 export const shareList = new ShareList(config.SHARE_DATA_FILE, true);
 
 process.on('SIGINT', () => {
