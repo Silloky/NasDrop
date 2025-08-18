@@ -1,8 +1,17 @@
 import { config } from "./index.ts";
 import * as fs from 'node:fs';
+import auth from "basic-auth";
+import { timingSafeEqual, createHash } from "node:crypto";
 
 function generateId(){
     return Math.random().toString(36).substr(2, 9);
+}
+
+// Credits for this function go to github/@Bruce17
+function safeCompare(userInput: string, secret: string) {
+	const hashUser = createHash('sha256').update(Buffer.from(userInput, 'utf8')).digest();
+	const hashSecret = createHash('sha256').update(Buffer.from(secret, 'utf8')).digest();
+	return timingSafeEqual(hashUser, hashSecret);
 }
 
 export type ShareCreationData = {
@@ -20,7 +29,7 @@ interface IShare {
     auth: {user: string, password: string};
 }
 
-class Share implements IShare {
+export class Share implements IShare {
 
     public id: string = generateId();
     public path: string = "";
@@ -45,13 +54,19 @@ class Share implements IShare {
     public get hasExpired(): boolean {
         return this.expiry < new Date();
     }
-
-    public checkAuth(user: string, password: string): boolean {
-        return this.auth.user === user && this.auth.password === password;
+    public get fileExists(): boolean {
+        return fs.existsSync(this.path)
     }
 
-    public get fileStream(): fs.ReadStream {
-        return fs.createReadStream(this.path);
+    public checkAuth(user: string, password: string): boolean {
+        return safeCompare(user, this.auth.user) && safeCompare(password, this.auth.password);
+    }
+
+    public fileStream(start?: number, end?: number): fs.ReadStream {
+        return fs.createReadStream(this.path, {start, end});
+    }
+    public get fileSize(): number {
+        return fs.statSync(this.path).size;
     }
 }
 
@@ -74,7 +89,7 @@ class ShareList {
 
             // Garbage collection
             this.shares.forEach(share => {
-                if (share.hasExpired) {
+                if (share.hasExpired || !share.fileExists) {
                     this.removeShare(share.id);
                 }
             });

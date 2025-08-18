@@ -3,6 +3,7 @@ import ShareList from "./shares.ts";
 import express from "express";
 import auth from "basic-auth";
 import * as fs from 'node:fs';
+import handleFileStreaming from "./stream.ts";
 
 configDotenv({path: '../.env'});
 export const config = {
@@ -22,7 +23,9 @@ app.get('/:id', (req, res) => {
                 return res.status(401).send('Authentication required.');
             }
         }
-        res.json(share);
+
+        handleFileStreaming(share, req, res)
+        
     } else {
         res.status(404).send("");
     }
@@ -36,14 +39,14 @@ app.listen(3000, () => {
 // Testing the ShareList class
 const shareList = new ShareList(config.SHARE_DATA_FILE, true);
 
-var id = shareList.addShare({
-    winPath: "/path/to/share",
-    user: "user1",
-    ttl: 30,
-    auth: { user: "user1", password: "password1" }
-})
-console.log(id)
-console.log(shareList.getShare(id)?.checkAuth("user1", "password1"))
+// var id = shareList.addShare({
+//     winPath: "/path/to/share",
+//     user: "user1",
+//     ttl: 30,
+//     auth: { user: "user1", password: "password1" }
+// })
+// console.log(id)
+// console.log(shareList.getShare(id)?.checkAuth("user1", "password1"))
 
 
 process.on('SIGINT', () => {
