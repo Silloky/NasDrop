@@ -7,7 +7,6 @@ function generateId(){
     return Math.random().toString(36).substr(2, 9);
 }
 
-// Credits for this function go to github/@Bruce17
 function safeCompare(userInput: string, secret: string) {
 	const hashUser = createHash('sha256').update(Buffer.from(userInput, 'utf8')).digest();
 	const hashSecret = createHash('sha256').update(Buffer.from(secret, 'utf8')).digest();
@@ -106,12 +105,8 @@ class ShareList {
         return shareObj.id
     }
 
-    public exportShares() {
-        fs.writeFile(this.shareDataFile, JSON.stringify(this.shares, null, 2), (err) => {
-            if (err) {
-                console.error("Error saving shares to disk:", err);
-            }
-        });
+    public async exportShares() {
+        await fs.promises.writeFile(this.shareDataFile, JSON.stringify(this.shares, null, 2));
     }
 
     public getShare(id: string): Share | undefined {

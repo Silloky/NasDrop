@@ -46,7 +46,7 @@ private_app.listen(config.PRIVATE_PORT, () => {
 
 export const shareList = new ShareList(config.SHARE_DATA_FILE, true);
 
-process.on('SIGINT', () => {
-    shareList.exportShares();
+process.on('SIGINT', async () => {
+    await shareList.exportShares();
     process.exit();
 });
