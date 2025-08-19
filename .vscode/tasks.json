@@ -1,0 +1,13 @@
+{
+	"version": "2.0.0",
+	"tasks": [
+		{
+			"type": "dotnet",
+			"task": "build D:\\Coding\\NasShare\\windows\\windows.csproj",
+			"file": "D:\\Coding\\NasShare\\windows\\windows.csproj",
+			"group": "build",
+			"problemMatcher": [],
+			"label": "Build Windows Project",
+		}
+	]
+}

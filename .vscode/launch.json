@@ -1,0 +1,36 @@
+{
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "name": ".NET Launch (Console) - With Argument",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Windows Project",
+            "program": "${workspaceFolder}/windows/bin/Debug/net8.0/windows.dll",
+            "args": [
+                "${input:fileArg}"
+            ],
+            "cwd": "${workspaceFolder}/windows",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        },
+        {
+            "name": ".NET Launch (Console) - No Args",
+            "type": "coreclr",
+            "request": "launch",
+            "preLaunchTask": "Build Windows Project",
+            "program": "${workspaceFolder}/windows/bin/Debug/net8.0/windows.dll",
+            "cwd": "${workspaceFolder}/windows",
+            "console": "integratedTerminal",
+            "justMyCode": true
+        }
+    ],
+    "inputs": [
+        {
+            "id": "fileArg",
+            "type": "promptString",
+            "description": "File path to pass as the first argument",
+            "default": "C:/path/to/file.ext"
+        }
+    ]
+}
