@@ -17,30 +17,30 @@ export type ShareCreationData = {
     winPath: string,
     user: string,
     ttl: number,
-    auth: { user: string, password: string }
+    auth: { username: string, password: string }
 }
 
 interface IShare {
     id: string;
     path: string;
-    creation: {user: string, timestamp: number};
+    creation: {user: string, timestamp: Date};
     expiry: Date;
-    auth: {user: string, password: string};
+    auth: {username: string, password: string};
 }
 
 export class Share implements IShare {
 
     public id: string = generateId();
     public path: string = "";
-    public creation: {user: string, timestamp: number} = {user: "", timestamp: Date.now()};
+    public creation: {user: string, timestamp: Date} = {user: "", timestamp: new Date()};
     public expiry: Date = new Date(0);
-    public auth: {user: string, password: string} = {user: "", password: ""};
+    public auth: {username: string, password: string} = {username: "", password: ""};
     public accessCount: number = 0;
 
     constructor (obj?: ShareCreationData) {
         if (obj) {
             this.path = obj.winPath;
-            this.creation = {user: obj.user, timestamp: Date.now()};
+            this.creation = {user: obj.user, timestamp: new Date()};
             this.expiry = new Date(Date.now() + obj.ttl * 1000);
             this.auth = obj.auth;
         }
@@ -59,7 +59,7 @@ export class Share implements IShare {
     }
 
     public checkAuth(user: string, password: string): boolean {
-        return safeCompare(user, this.auth.user) && safeCompare(password, this.auth.password);
+        return safeCompare(user, this.auth.username) && safeCompare(password, this.auth.password);
     }
 
     public fileStream(start?: number, end?: number): fs.ReadStream {

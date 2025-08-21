@@ -19,11 +19,12 @@ const public_app = express();
 public_app.get('/:id', (req, res) => {
     const share = shareList.getShare(req.params.id!);
     if (share) {
-        if (share.auth.user && share.auth.password) {
+        if (share.auth.username && share.auth.password) {
             const credentials = auth(req);
             if (!credentials || !share.checkAuth(credentials.name, credentials.pass)) {
                 res.set('WWW-Authenticate', `Basic realm="${share.id}"`);
-                return res.status(401).send('Authentication required.');
+                res.status(401).send('Authentication required.');
+                return
             }
         }
 
