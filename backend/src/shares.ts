@@ -1,6 +1,5 @@
 import { config } from "./index.ts";
 import * as fs from 'node:fs';
-import auth from "basic-auth";
 import { timingSafeEqual, createHash } from "node:crypto";
 
 function generateId(){
@@ -41,7 +40,7 @@ export class Share implements IShare {
         if (obj) {
             this.path = obj.winPath;
             this.creation = {user: obj.user, timestamp: new Date()};
-            this.expiry = new Date(Date.now() + obj.ttl * 1000);
+            this.expiry = obj.ttl != -1 ? new Date(Date.now() + obj.ttl * 1000) : new Date(new Date().getFullYear() + 20, 1, 1);
             this.auth = obj.auth;
         }
     }

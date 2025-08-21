@@ -1,8 +1,5 @@
 using Spectre.Console;
 using System.Security.Principal;
-using RestSharp;
-using RestSharp.Authenticators;
-using System.Runtime.InteropServices;
 using Newtonsoft.Json;
 
 class Utils

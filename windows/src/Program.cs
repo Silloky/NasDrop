@@ -42,6 +42,12 @@ class Program
                 return 1;
             }
         }
+        if (config.Auth.Expiry < DateTime.Now)
+        {
+            Utils.WriteMessage("Token has expired, running setup...", false);
+            Thread.Sleep(3000);
+            Setup.Run();
+        }
 
         if (args.Length == 0)
         {
@@ -51,9 +57,17 @@ class Program
                 return 0;
             }
         }
-
-        string filePath = args[0];
-        return NewShare.Show(filePath);
+        else if (args.Length == 1)
+        {
+            NewShare.Show(args[0]);
+            Thread.Sleep(Timeout.Infinite);
+            return 0;
+        }
+        else
+        {
+            Utils.WriteMessage("Invalid arguments. Please provide a valid file path or run without arguments.", false);
+            return 1;
+        }
     }
 
 }

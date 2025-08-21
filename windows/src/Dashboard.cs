@@ -1,5 +1,4 @@
 using Spectre.Console;
-using Newtonsoft.Json;
 using RestSharp;
 
 class Dashboard
@@ -11,7 +10,7 @@ class Dashboard
             Utils.Clear(true);
             var verb = AnsiConsole.Prompt(
                 new SelectionPrompt<string>()
-                    .Title("Please choose an action below")
+                    .Title("[underline]Please choose an action[/]:")
                     .PageSize(10)
                     .AddChoices(new[] { "View and Modify Shares", "Create New Share", "Settings", "Exit" }));
 
@@ -52,93 +51,81 @@ class Dashboard
             {
                 return 1;
             }
-
-            var table = new Table();
-            table.AddColumns(new[] { "ID", "Path", "Created At", "Expires At", "Access Count", "Is Protected" });
-            for (int i = 0; i < table.Columns.Count; i++)
+            if (shares.Count > 0)
             {
-                table.Columns[i].Alignment = Justify.Center;
-            }
-            table.Border = TableBorder.Rounded;
+                var table = new Table();
+                table.AddColumns(new[] { "ID", "Path", "Created At", "Expires At", "Access Count", "Is Protected" });
+                for (int i = 0; i < table.Columns.Count; i++)
+                {
+                    table.Columns[i].Alignment = Justify.Center;
+                }
+                table.Border = TableBorder.Rounded;
 
-            foreach (var share in shares)
-            {
-                table.AddRow(
-                    share.Id,
-                    share.Path,
-                    share.Creation.Timestamp.ToLocalTime().ToString("g"),
-                    share.Expiry.ToLocalTime().ToString("g"),
-                    share.AccessCount.ToString(),
-                    share.Auth.Username != "" ? "Yes" : "No"
-                );
-            }
-            table.Expand().Centered();
+                foreach (var share in shares)
+                {
+                    table.AddRow(
+                        share.Id,
+                        share.Path,
+                        share.Creation.Timestamp.ToLocalTime().ToString("g"),
+                        share.Expiry.Year >= DateTime.Now.Year + 20 ? "Never" : share.Expiry.ToLocalTime().ToString("g"),
+                        share.AccessCount.ToString(),
+                        share.Auth.Username != "" ? "Yes" : "No"
+                    );
+                }
+                table.Expand().Centered();
 
-            AnsiConsole.Write(table);
+                AnsiConsole.Write(table);
 
-            string matchingId = "";
-            while (matchingId == "")
-            {
-                var query = AnsiConsole.Prompt(
-                    new TextPrompt<string>("Enter first characters of share ID to view details or [skyblue2]exit[/] to return to menu:"));
-                if (query == "exit")
+                string matchingId = "";
+                while (matchingId == "")
+                {
+                    var query = AnsiConsole.Prompt(
+                        new TextPrompt<string>("Enter first characters of share ID to view details or [skyblue2]back[/] to return to menu:"));
+                    if (query == "back")
+                    {
+                        break;
+                    }
+
+                    var allIds = shares.Select(s => s.Id).ToList();
+                    var matchingIds = allIds.Where(id => id.StartsWith(query, StringComparison.OrdinalIgnoreCase)).ToList();
+
+                    if (matchingIds.Count == 0)
+                    {
+                        Utils.WriteMessage("No shares found with that ID prefix. Please try again.", false);
+                        continue;
+                    }
+                    else if (matchingIds.Count == 1)
+                    {
+                        matchingId = matchingIds.First();
+                    }
+                    else
+                    {
+                        matchingId = AnsiConsole.Prompt(
+                        new SelectionPrompt<string>()
+                            .Title("Multiple shares found. Please select one:")
+                            .PageSize(10)
+                            .AddChoices(matchingIds));
+                    }
+                }
+
+                if (matchingId == "")
                 {
                     break;
                 }
-
-                var allIds = shares.Select(s => s.Id).ToList();
-                var matchingIds = allIds.Where(id => id.StartsWith(query, StringComparison.OrdinalIgnoreCase)).ToList();
-
-                if (matchingIds.Count == 0)
-                {
-                    Utils.WriteMessage("No shares found with that ID prefix. Please try again.", false);
-                    continue;
-                }
-                else if (matchingIds.Count == 1)
-                {
-                    matchingId = matchingIds.First();
-                }
-                else
-                {
-                    matchingId = AnsiConsole.Prompt(
-                    new SelectionPrompt<string>()
-                        .Title("Multiple shares found. Please select one:")
-                        .PageSize(10)
-                        .AddChoices(matchingIds));
-                }
+                ShareDetails(shares.Find(share => share.Id == matchingId)!);
             }
-
-            if (matchingId == "")
+            else
             {
+                var panel = new Panel(new Markup("No active shares found, returning to menu"));
+                var align = Align.Center(panel);
+                AnsiConsole.Write(align);
+                Thread.Sleep(3000);
                 break;
             }
-            ShareDetails(shares.Find(share => share.Id == matchingId)!);
+
         }
 
         return 0;
-    }
-
-    private static Table makeShareInfoTable(Api.Share share)
-    {
-        TimeSpan difference = share.Expiry.ToLocalTime() - DateTime.Now;
-
-        var table = new Table();
-        table.AddColumns(new[] { "Sharing link", "Path", "Created At", "Expires At", "Username", "Password", "Access Count" });
-        for (int i = 0; i < table.Columns.Count; i++)
-        {
-            table.Columns[i].Alignment = Justify.Center;
-        }
-        table.Border = TableBorder.Rounded;
-        table.AddRow(
-            "[link]http://localhost:3000/" + share.Id + "[/]",
-            share.Path,
-            share.Creation.Timestamp.ToLocalTime().ToString("g"),
-            share.Expiry.ToLocalTime().ToString("g") + " (in " + difference.Days + "d " + difference.Hours + "h " + difference.Minutes + "m)",
-            share.Auth.Username! == "" ? "No protection" : share.Auth.Username!,
-            share.Auth.Password! == "" ? "No protection" : share.Auth.Password!,
-            share.AccessCount.ToString()
-        );
-        return table;
     }
 
     private static void ShareDetails(Api.Share share)
@@ -162,7 +149,24 @@ class Dashboard
                 }
             }
 
-            var table = makeShareInfoTable(share);
+            TimeSpan difference = share.Expiry.ToLocalTime() - DateTime.Now;
+
+            var table = new Table();
+            table.AddColumns(new[] { "Sharing link", "Path", "Created At", "Expires At", "Username", "Password", "Access Count" });
+            for (int i = 0; i < table.Columns.Count; i++)
+            {
+                table.Columns[i].Alignment = Justify.Center;
+            }
+            table.Border = TableBorder.Rounded;
+            table.AddRow(
+                "[link]http://localhost:3000/" + share.Id + "[/]",
+                share.Path,
+                share.Creation.Timestamp.ToLocalTime().ToString("g"),
+                share.Expiry.Year >= DateTime.Now.Year + 20 ? "Never" : share.Expiry.ToLocalTime().ToString("g") + " (in " + difference.Days + "d " + difference.Hours + "h " + difference.Minutes + "m)",
+                share.Auth.Username! == "" ? "No protection" : share.Auth.Username!,
+                share.Auth.Password! == "" ? "No protection" : share.Auth.Password!,
+                share.AccessCount.ToString()
+            );
             AnsiConsole.Write(table);
 
             var verb = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -230,7 +234,7 @@ class Dashboard
             }
             else if (verb == "Delete")
             {
-                var confirmation = AnsiConsole.Confirm("Confirm deletion?");
+                var confirmation = AnsiConsole.Confirm("Confirm deletion?", false);
                 if (confirmation)
                 {
                     try
@@ -247,10 +251,8 @@ class Dashboard
 
         }
     }
-
     private static void Settings()
     {
-        Utils.Clear(false);
-        Thread.Sleep(3000);
+        Setup.Run();
     }
 }

@@ -1,9 +1,7 @@
 using RestSharp;
 using RestSharp.Authenticators;
 using Spectre.Console;
-using System.Data.Common;
 using System.Net;
-using System.Text.Json.Serialization;
 
 class Api
 {
@@ -59,9 +57,14 @@ class Api
         public ShareAuthData? Auth { get; set; } = new ShareAuthData();
     }
 
+    public class ShareCreationResBody
+    {
+        public string Id { get; set; } = "";
+    }
+
     public bool canConnect()
     {
-        var impatientClient = new RestClient(new RestClientOptions(Program.config.ServerUrl)
+        var impatientClient = new RestClient(new RestClientOptions(client.Options.BaseUrl!)
         {
             Timeout = new TimeSpan(0, 0, 0, 0, 400), // 400ms timeout
         });

@@ -1,12 +1,13 @@
 using System.Net;
 using Spectre.Console;
 using RestSharp;
-using System.IO;
 
 class Setup
 {
     public static int Run()
     {
+
+        Utils.Clear(true);
         string serverUrl, username, password, token;
         DateTime expiry;
         Api api;
@@ -109,7 +110,7 @@ class Setup
         Program.config.Drive = driveLetter;
         Program.config.Save();
 
-        AnsiConsole.Write(new Rule("[green]Setup Complete, returning to menu[/]").Justify(Justify.Left));
+        AnsiConsole.Write(new Rule("[yellow]Setup Complete, returning to menu[/]").Justify(Justify.Left));
         Thread.Sleep(3000);
 
         return 0;

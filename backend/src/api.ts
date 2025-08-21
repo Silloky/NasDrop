@@ -20,6 +20,7 @@ apiRouter.use((req: Request, res, next) => {
         next();
         return
     }
+
     const token = req.headers.authorization?.split(" ")[1];
     if (token) {
         jsonwebtoken.verify(token, config.JWT_SECRET, (err, decoded) => {
