@@ -36,7 +36,8 @@ apiRouter.use((req: Request, res, next) => {
 });
 
 apiRouter.get('/ping', (req, res) => {
-    res.status(200).send("pong");
+    console.log(config.PRIVATE_ENDPOINT)
+    res.status(200).send(config.PUBLIC_ENDPOINT);
 })
 
 apiRouter.post('/auth', (req, res) => {

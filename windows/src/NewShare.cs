@@ -106,7 +106,7 @@ class NewShare
             }).Data.Id;
             Utils.WriteMessage($"Share (ID: {shareId}) created successfully! Please send the following link {(wantsAuth ? "and credentials" : "")} to the recipient(s)", true);
 
-            var panel = new Panel(new Markup($"http://localhost:3000/{shareId}"));
+            var panel = new Panel(new Markup(Program.config.PublicEndpoint + shareId));
             var align = Align.Center(panel);
             AnsiConsole.Write(align);
             Thread.Sleep(2000);

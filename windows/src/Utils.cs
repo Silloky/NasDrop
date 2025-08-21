@@ -47,6 +47,7 @@ class Utils
         public AuthData Auth { get; set; } = new AuthData();
         public string ServerUrl { get; set; } = "";
         public string Drive { get; set; } = "";
+        public string PublicEndpoint { get; set; } = "";
 
         public int Save(string? path = null)
         {

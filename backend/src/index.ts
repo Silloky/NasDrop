@@ -12,7 +12,9 @@ export const config = {
     USERS: JSON.parse(fs.readFileSync(process.env.USER_DEFINITIONS_FILE!, 'utf-8')) as { username: string, password: string }[],
     PUBLIC_PORT: process.env.PUBLIC_PORT ? parseInt(process.env.PUBLIC_PORT) : 3000,
     PRIVATE_PORT: process.env.PRIVATE_PORT ? parseInt(process.env.PRIVATE_PORT) : 3001,
-    JWT_SECRET: process.env.JWT_SECRET!
+    JWT_SECRET: process.env.JWT_SECRET!,
+    PUBLIC_ENDPOINT: process.env.PUBLIC_ENDPOINT!,
+    PRIVATE_ENDPOINT: process.env.PRIVATE_ENDPOINT!
 };
 
 const public_app = express();

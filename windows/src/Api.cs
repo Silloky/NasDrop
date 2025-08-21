@@ -69,6 +69,11 @@ class Api
             Timeout = new TimeSpan(0, 0, 0, 0, 400), // 400ms timeout
         });
         var pingResult = impatientClient.Execute<string>(new RestRequest("/api/ping", Method.Get));
+        if (pingResult.StatusCode == HttpStatusCode.OK && Program.config.PublicEndpoint != pingResult.Content)
+        {
+            Program.config.PublicEndpoint = pingResult.Content!;
+            Program.config.Save();
+        }
         return pingResult.StatusCode == HttpStatusCode.OK;
     }
 

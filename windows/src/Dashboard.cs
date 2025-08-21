@@ -159,7 +159,7 @@ class Dashboard
             }
             table.Border = TableBorder.Rounded;
             table.AddRow(
-                "[link]http://localhost:3000/" + share.Id + "[/]",
+                "[link]"+ Program.config.PublicEndpoint + "/" + share.Id + "[/]",
                 share.Path,
                 share.Creation.Timestamp.ToLocalTime().ToString("g"),
                 share.Expiry.Year >= DateTime.Now.Year + 20 ? "Never" : share.Expiry.ToLocalTime().ToString("g") + " (in " + difference.Days + "d " + difference.Hours + "h " + difference.Minutes + "m)",
