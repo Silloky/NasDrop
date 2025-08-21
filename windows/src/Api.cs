@@ -1,7 +1,9 @@
 using RestSharp;
 using RestSharp.Authenticators;
 using Spectre.Console;
+using System.Data.Common;
 using System.Net;
+using System.Text.Json.Serialization;
 
 class Api
 {
@@ -17,7 +19,7 @@ class Api
 
     public class ApiRes<T>
     {
-        public T? Data { get; set; } = default;
+        public T Data { get; set; } = default!;
         public HttpStatusCode StatusCode { get; set; }
     }
     public class AuthRes
@@ -26,13 +28,48 @@ class Api
         public DateTime expiry { get; set; } = DateTime.MinValue;
     }
 
+    public class ShareCreationData
+    {
+        public string User { get; set; } = "";
+        public DateTime Timestamp { get; set; } = DateTime.MinValue;
+    }
+
+    public class ShareAuthData
+    {
+        public string? Username { get; set; } = null;
+        public string? Password { get; set; } = null;
+    }
+
+    public class Share
+    {
+        public string Id { get; set; } = "";
+        public string Path { get; set; } = "";
+        public ShareCreationData Creation { get; set; } = new ShareCreationData();
+        public DateTime Expiry { get; set; } = DateTime.MinValue;
+        public ShareAuthData Auth { get; set; } = new ShareAuthData();
+        public int AccessCount { get; set; } = 0;
+    }
+
+    public class GetSharesRes : List<Share> { }
+
+    public class ShareCreationReqBody
+    {
+        public string? WinPath { get; set; } = "";
+        public int? Ttl { get; set; } = 0;
+        public ShareAuthData? Auth { get; set; } = new ShareAuthData();
+    }
+
     public bool canConnect()
     {
-        var pingResult = client.Execute<string>(new RestRequest("/api/ping", Method.Get));
+        var impatientClient = new RestClient(new RestClientOptions(Program.config.ServerUrl)
+        {
+            Timeout = new TimeSpan(0, 0, 0, 0, 400), // 400ms timeout
+        });
+        var pingResult = impatientClient.Execute<string>(new RestRequest("/api/ping", Method.Get));
         return pingResult.StatusCode == HttpStatusCode.OK;
     }
 
-    public bool canConnectAfterWait(int? maxRetries = 10)
+    public bool canConnectAfterWait(int? maxRetries = 6)
     {
         AnsiConsole.Status()
             .Spinner(Spinner.Known.BouncingBar)
@@ -46,7 +83,7 @@ class Api
                     {
                         ctx.Status("Retrying connection... Make sure you are connected to the network and/or VPN.");
                     }
-                    Thread.Sleep(3000);
+                    Thread.Sleep(2000);
                     retryCount++;
                 }
 
@@ -59,11 +96,7 @@ class Api
         if (!canConnect())
         {
             Utils.WriteMessage("Cannot connect to the server. Please check your network and VPN connection", false);
-            return new ApiRes<T>
-            {
-                Data = default,
-                StatusCode = HttpStatusCode.ServiceUnavailable
-            };
+            throw new Exception("Cannot connect to the server");
         }
         var request = new RestRequest(path, method);
         if (body != null)
@@ -72,13 +105,13 @@ class Api
         }
         RestResponse<T> response = client.Execute<T>(request);
 
-        
-
         return new ApiRes<T>
         {
             Data = response.Data,
             StatusCode = response.StatusCode
         };
     }
+    
+    
 
 }
