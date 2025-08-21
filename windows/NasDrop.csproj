@@ -1,0 +1,27 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>net8.0-windows</TargetFramework>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <Nullable>enable</Nullable>
+    <UserSecretsId>051d4dbe-ac83-4972-a09e-6e5b56d934e4</UserSecretsId>
+    <ApplicationIcon>assets\icon.ico</ApplicationIcon>
+    <AssemblyName>NasDrop</AssemblyName>
+    <RootNamespace>NasDrop</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Compile Include="src\*.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="RestSharp" Version="112.1.0" />
+    <PackageReference Include="Spectre.Console" Version="0.50.0" />
+    <PackageReference Include="Spectre.Console.Cli" Version="0.50.0" />
+    <EmbeddedResource Include="assets\**\*.*" />
+    <PackageReference Include="Spectre.Console.Json" Version="0.50.0" />
+  </ItemGroup>
+
+</Project>

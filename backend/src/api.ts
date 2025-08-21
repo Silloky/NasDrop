@@ -16,7 +16,7 @@ function transformPath(path: string) {
 }
 
 apiRouter.use((req: Request, res, next) => {
-    if (req.path === '/auth') {
+    if (req.path === '/auth' || req.path === '/ping') {
         next();
         return
     }
@@ -34,14 +34,18 @@ apiRouter.use((req: Request, res, next) => {
     }
 });
 
+apiRouter.get('/ping', (req, res) => {
+    res.status(200).send("pong");
+})
+
 apiRouter.post('/auth', (req, res) => {
     const { username, password } = req.body;
     const user = config.USERS.find(u => u.username === username && u.password === password);
     if (user) {
-        const token = jsonwebtoken.sign({ username: user.username }, config.JWT_SECRET, { expiresIn: '30d' });
-        res.json({ token });
+        const token = jsonwebtoken.sign({ username: user.username }, config.JWT_SECRET, { expiresIn: '365d' });
+        res.json({ token, expiry: new Date(Date.now() + 365 * 24 * 60 * 60 * 1000) });
     } else {
-        res.status(401).send("Invalid credentials");
+        res.status(401).send({ error: "Invalid credentials" });
     }
 });
 
@@ -50,7 +54,7 @@ apiRouter.get('/shares', (req: Request, res) => {
         const userShares = shareList.getSharesByUser(req.user);
         res.json(userShares);
     } else {
-        res.status(401).send("Unauthorized");
+        res.status(401).send({ error: "Unauthorized" });
     }
 });
 

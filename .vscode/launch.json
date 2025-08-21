@@ -6,9 +6,9 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build Windows Project",
-            "program": "${workspaceFolder}/windows/bin/Debug/net8.0/windows.dll",
+            "program": "${workspaceFolder}/windows/bin/Debug/net8.0-windows/windows.dll",
             "args": [
-                "${input:fileArg}"
+                "${input:argument}"
             ],
             "cwd": "${workspaceFolder}/windows",
             "console": "integratedTerminal",
@@ -19,7 +19,7 @@
             "type": "coreclr",
             "request": "launch",
             "preLaunchTask": "Build Windows Project",
-            "program": "${workspaceFolder}/windows/bin/Debug/net8.0/windows.dll",
+            "program": "${workspaceFolder}/windows/bin/Debug/net8.0-windows/windows.dll",
             "cwd": "${workspaceFolder}/windows",
             "console": "integratedTerminal",
             "justMyCode": true
@@ -27,7 +27,7 @@
     ],
     "inputs": [
         {
-            "id": "fileArg",
+            "id": "argument",
             "type": "promptString",
             "description": "File path to pass as the first argument",
             "default": "C:/path/to/file.ext"

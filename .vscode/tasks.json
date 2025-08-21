@@ -3,8 +3,8 @@
 	"tasks": [
 		{
 			"type": "dotnet",
-			"task": "build D:\\Coding\\NasShare\\windows\\windows.csproj",
-			"file": "D:\\Coding\\NasShare\\windows\\windows.csproj",
+			"task": "build D:\\Coding\\NasDrop\\windows\\windows.csproj",
+			"file": "D:\\Coding\\NasDrop\\windows\\windows.csproj",
 			"group": "build",
 			"problemMatcher": [],
 			"label": "Build Windows Project",

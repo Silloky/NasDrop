@@ -1,0 +1,84 @@
+using RestSharp;
+using RestSharp.Authenticators;
+using Spectre.Console;
+using System.Net;
+
+class Api
+{
+    public RestClient client;
+
+    public Api(string? host = null)
+    {
+        client = new RestClient(new RestClientOptions(host ?? Program.config.ServerUrl)
+        {
+            Authenticator = Program.config.Auth.Token == "" ? null : new JwtAuthenticator(Program.config.Auth.Token)
+        });
+    }
+
+    public class ApiRes<T>
+    {
+        public T? Data { get; set; } = default;
+        public HttpStatusCode StatusCode { get; set; }
+    }
+    public class AuthRes
+    {
+        public string token { get; set; } = "";
+        public DateTime expiry { get; set; } = DateTime.MinValue;
+    }
+
+    public bool canConnect()
+    {
+        var pingResult = client.Execute<string>(new RestRequest("/api/ping", Method.Get));
+        return pingResult.StatusCode == HttpStatusCode.OK;
+    }
+
+    public bool canConnectAfterWait(int? maxRetries = 10)
+    {
+        AnsiConsole.Status()
+            .Spinner(Spinner.Known.BouncingBar)
+            .SpinnerStyle(Style.Parse("blue"))
+            .Start("Waiting for server connection...", ctx =>
+            {
+                int retryCount = 0;
+                while (!canConnect() && retryCount < maxRetries)
+                {
+                    if (retryCount > 2)
+                    {
+                        ctx.Status("Retrying connection... Make sure you are connected to the network and/or VPN.");
+                    }
+                    Thread.Sleep(3000);
+                    retryCount++;
+                }
+
+            });
+        return canConnect() ? true : false;
+    }
+
+    public ApiRes<T> Request<T>(Method method, string path, object? body)
+    {
+        if (!canConnect())
+        {
+            Utils.WriteMessage("Cannot connect to the server. Please check your network and VPN connection", false);
+            return new ApiRes<T>
+            {
+                Data = default,
+                StatusCode = HttpStatusCode.ServiceUnavailable
+            };
+        }
+        var request = new RestRequest(path, method);
+        if (body != null)
+        {
+            request.AddJsonBody(body);
+        }
+        RestResponse<T> response = client.Execute<T>(request);
+
+        
+
+        return new ApiRes<T>
+        {
+            Data = response.Data,
+            StatusCode = response.StatusCode
+        };
+    }
+
+}
