@@ -28,6 +28,7 @@ class Program
             while (result == 1)
             {
                 result = Setup.Run();
+                api = new Api();
                 Utils.Clear(true);
             }
         }

@@ -29,6 +29,8 @@ class NewShare
             return 1;
         }
 
+        path = path.Replace(Program.config.Drive, "");
+
         int ttl;
         string ttl_choice = AnsiConsole.Prompt(
             new SelectionPrompt<string>()
@@ -106,7 +108,7 @@ class NewShare
             }).Data.Id;
             Utils.WriteMessage($"Share (ID: {shareId}) created successfully! Please send the following link {(wantsAuth ? "and credentials" : "")} to the recipient(s)", true);
 
-            var panel = new Panel(new Markup(Program.config.PublicEndpoint + shareId));
+            var panel = new Panel(new Markup(Program.config.PublicEndpoint.TrimEnd('/') + "/" + shareId));
             var align = Align.Center(panel);
             AnsiConsole.Write(align);
             Thread.Sleep(2000);

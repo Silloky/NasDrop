@@ -47,8 +47,9 @@ class Dashboard
             {
                 shares = Program.api!.Request<Api.GetSharesRes>(Method.Get, "/api/shares", null).Data;
             }
-            catch (Exception)
+            catch (Exception e)
             {
+                Console.WriteLine(e);
                 return 1;
             }
             if (shares.Count > 0)
@@ -65,7 +66,7 @@ class Dashboard
                 {
                     table.AddRow(
                         share.Id,
-                        share.Path,
+                        Program.config.Drive + share.Path,
                         share.Creation.Timestamp.ToLocalTime().ToString("g"),
                         share.Expiry.Year >= DateTime.Now.Year + 20 ? "Never" : share.Expiry.ToLocalTime().ToString("g"),
                         share.AccessCount.ToString(),
@@ -159,14 +160,15 @@ class Dashboard
             }
             table.Border = TableBorder.Rounded;
             table.AddRow(
-                "[link]"+ Program.config.PublicEndpoint + "/" + share.Id + "[/]",
-                share.Path,
+                "[link]"+ Program.config.PublicEndpoint.TrimEnd('/') + "/" + share.Id + "[/]",
+                Program.config.Drive + share.Path,
                 share.Creation.Timestamp.ToLocalTime().ToString("g"),
                 share.Expiry.Year >= DateTime.Now.Year + 20 ? "Never" : share.Expiry.ToLocalTime().ToString("g") + " (in " + difference.Days + "d " + difference.Hours + "h " + difference.Minutes + "m)",
                 share.Auth.Username! == "" ? "No protection" : share.Auth.Username!,
                 share.Auth.Password! == "" ? "No protection" : share.Auth.Password!,
                 share.AccessCount.ToString()
             );
+            table.Expand().Centered();
             AnsiConsole.Write(table);
 
             var verb = AnsiConsole.Prompt(new SelectionPrompt<string>()
@@ -186,7 +188,7 @@ class Dashboard
                 Api.Share newShare = new Api.Share();
                 if (toEdit == "Path")
                 {
-                    newShare.Path = AnsiConsole.Prompt(new TextPrompt<string>("Enter new path:"));
+                    newShare.Path = AnsiConsole.Prompt(new TextPrompt<string>("Enter new path:")).Replace(Program.config.Drive, "");
                 }
                 else if (toEdit == "Expiry")
                 {

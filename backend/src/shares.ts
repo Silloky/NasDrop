@@ -12,6 +12,33 @@ function safeCompare(userInput: string, secret: string) {
 	return timingSafeEqual(hashUser, hashSecret);
 }
 
+export function servercizePath(path: string, user: string) {
+    path = path.replace(/\\/g, '/');
+    for (const mapping of config.MAPPINGS) {
+        const regex = new RegExp(mapping.windows.replace(/\$(\d+)/g, '(.*)'));
+        const match = path.match(regex);
+        if (match) {
+            let mapped = mapping.map.replace('%user%', user);
+            mapped = mapped.replace(/\$(\d+)/g, (_, group) => match[parseInt(group)] ?? '');
+            return mapped;
+        }
+    }
+    return path;
+}
+
+export function deservercizePath(path: string, user: string) {
+    for (const mapping of config.MAPPINGS) {
+        const regex = new RegExp(mapping.map.replace('%user%', user).replace(/\$(\d+)/g, '(.*)'));
+        const match = path.match(regex);
+        if (match) {
+            let mapped = mapping.windows.replace(/\$(\d+)/g, (_, group) => match[parseInt(group)] ?? '');
+            return mapped.replace(/\//g, '\\');
+        }
+    }
+    path = path.replace(/\\/g, '/');
+    return path;
+}
+
 export type ShareCreationData = {
     winPath: string,
     user: string,
@@ -38,7 +65,7 @@ export class Share implements IShare {
 
     constructor (obj?: ShareCreationData) {
         if (obj) {
-            this.path = obj.winPath;
+            this.path = servercizePath(obj.winPath, obj.user);
             this.creation = {user: obj.user, timestamp: new Date()};
             this.expiry = obj.ttl != -1 ? new Date(Date.now() + obj.ttl * 1000) : new Date(new Date().getFullYear() + 20, 1, 1);
             this.auth = obj.auth;
@@ -88,7 +115,8 @@ class ShareList {
 
             // Garbage collection
             this.shares.forEach(share => {
-                if (share.hasExpired || !share.fileExists) {
+                //if (share.hasExpired || !share.fileExists) {
+                if (share.hasExpired) {
                     this.removeShare(share.id);
                 }
             });

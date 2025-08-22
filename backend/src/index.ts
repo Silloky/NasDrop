@@ -14,7 +14,8 @@ export const config = {
     PRIVATE_PORT: process.env.PRIVATE_PORT ? parseInt(process.env.PRIVATE_PORT) : 3001,
     JWT_SECRET: process.env.JWT_SECRET!,
     PUBLIC_ENDPOINT: process.env.PUBLIC_ENDPOINT!,
-    PRIVATE_ENDPOINT: process.env.PRIVATE_ENDPOINT!
+    PRIVATE_ENDPOINT: process.env.PRIVATE_ENDPOINT!,
+    MAPPINGS: JSON.parse(fs.readFileSync(process.env.MAPPINGS_FILE!, 'utf-8')) as { windows: string, map: string }[],
 };
 
 const public_app = express();

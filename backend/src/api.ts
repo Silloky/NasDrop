@@ -2,6 +2,7 @@ import express, { Router, Request } from "express";
 import { config, shareList } from "./index.ts";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken"
 import { ShareCreationData } from "./shares.ts";
+import { servercizePath, deservercizePath } from "./shares.ts";
 
 declare module 'express' {
     interface Request {
@@ -10,10 +11,6 @@ declare module 'express' {
 }
 
 const apiRouter: Router = express.Router();
-
-function transformPath(path: string) {
-    return path
-}
 
 apiRouter.use((req: Request, res, next) => {
     if (req.path === '/auth' || req.path === '/ping') {
@@ -36,7 +33,6 @@ apiRouter.use((req: Request, res, next) => {
 });
 
 apiRouter.get('/ping', (req, res) => {
-    console.log(config.PRIVATE_ENDPOINT)
     res.status(200).send(config.PUBLIC_ENDPOINT);
 })
 
@@ -54,7 +50,11 @@ apiRouter.post('/auth', (req, res) => {
 apiRouter.get('/shares', (req: Request, res) => {
     if (req.user) {
         const userShares = shareList.getSharesByUser(req.user);
-        res.json(userShares);
+        const responseShares = userShares.map(share => ({
+            ...share,
+            path: deservercizePath(share.path, share.creation.user)
+        }))
+        res.json(responseShares);
     } else {
         res.status(401).send({ error: "Unauthorized" });
     }
@@ -76,7 +76,7 @@ apiRouter.patch('/:id', (req: Request, res) => {
     const {winPath, ttl, auth}: Partial<Omit<ShareCreationData, 'user'>> = req.body;
     const share = shareList.getShare(req.params.id!);
     if (share && share.creation.user === req.user) {
-        share.path = (winPath ? transformPath(winPath) : undefined) ?? share.path;
+        share.path = (winPath ? servercizePath(winPath, req.user) : undefined) ?? share.path;
         share.expiry = (ttl ? new Date(Date.now() + ttl * 1000) : undefined) ?? share.expiry;
         share.auth = auth ?? share.auth;
         res.status(200).json({ success: true });
