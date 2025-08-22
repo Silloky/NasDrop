@@ -1,4 +1,4 @@
-import { config } from "./index.ts";
+import { config } from "./index";
 import * as fs from 'node:fs';
 import { timingSafeEqual, createHash } from "node:crypto";
 

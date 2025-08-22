@@ -1,8 +1,7 @@
 import express, { Router, Request } from "express";
-import { config, shareList } from "./index.ts";
+import { config, shareList } from "./index";
 import jsonwebtoken, { JwtPayload } from "jsonwebtoken"
-import { ShareCreationData } from "./shares.ts";
-import { servercizePath, deservercizePath } from "./shares.ts";
+import { ShareCreationData, servercizePath, deservercizePath } from "./shares";
 
 declare module 'express' {
     interface Request {

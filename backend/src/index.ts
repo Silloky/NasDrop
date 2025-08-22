@@ -1,10 +1,10 @@
 import { configDotenv } from "dotenv";
-import ShareList from "./shares.ts";
+import ShareList from "./shares";
 import express from "express";
 import auth from "basic-auth";
 import * as fs from 'node:fs';
-import handleFileStreaming from "./stream.ts";
-import apiRouter from "./api.ts";
+import handleFileStreaming from "./stream";
+import apiRouter from "./api";
 
 configDotenv({path: '../.env'});
 export const config = {

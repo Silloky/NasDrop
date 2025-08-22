@@ -1,5 +1,5 @@
 import express from "express";
-import { Share } from "./shares.ts";
+import { Share } from "./shares";
 import * as path from "node:path"
 
 export default function handleFileStreaming(share: Share, req: express.Request, res: express.Response){
