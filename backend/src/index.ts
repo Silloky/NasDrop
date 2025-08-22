@@ -6,7 +6,7 @@ import * as fs from 'node:fs';
 import handleFileStreaming from "./stream";
 import apiRouter from "./api";
 
-configDotenv({path: '../.env'});
+configDotenv({path: __dirname + '/../../.env'});
 export const config = {
     SHARE_DATA_FILE: process.env.SHARE_DATA_FILE!,
     USERS: JSON.parse(fs.readFileSync(process.env.USER_DEFINITIONS_FILE!, 'utf-8')) as { username: string, password: string }[],
